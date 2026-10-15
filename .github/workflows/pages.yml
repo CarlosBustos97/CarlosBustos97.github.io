@@ -42,18 +42,19 @@ jobs:
         with:
           script: |
             const source = { branch: 'gh-pages', path: '/' }
+            const base = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              build_type: 'legacy',
+              source,
+            }
             try {
-              await github.rest.repos.updatePages({
+              await github.request('GET /repos/{owner}/{repo}/pages', {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                build_type: 'legacy',
-                source,
               })
+              await github.request('PUT /repos/{owner}/{repo}/pages', base)
             } catch (error) {
               if (error.status !== 404) throw error
-              await github.rest.repos.createPagesSite({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                source,
-              })
+              await github.request('POST /repos/{owner}/{repo}/pages', base)
             }
