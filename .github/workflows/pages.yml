@@ -3,11 +3,13 @@ name: Deploy GitHub Pages
 on:
   push:
     branches: [main]
+    paths:
+      - "site/**"
+      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
 permissions:
   contents: write
-  pages: write
 
 concurrency:
   group: pages
@@ -19,6 +21,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -26,35 +30,32 @@ jobs:
           node-version: 22
 
       - name: Install
+        working-directory: site
         run: npm install
 
       - name: Build
+        working-directory: site
         run: npm run build
 
       - name: Publish dist to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          publish_dir: ./site/dist
 
-      - name: Use gh-pages as the Pages source
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const source = { branch: 'gh-pages', path: '/' }
-            const base = {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              build_type: 'legacy',
-              source,
-            }
-            try {
-              await github.request('GET /repos/{owner}/{repo}/pages', {
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-              })
-              await github.request('PUT /repos/{owner}/{repo}/pages', base)
-            } catch (error) {
-              if (error.status !== 404) throw error
-              await github.request('POST /repos/{owner}/{repo}/pages', base)
-            }
+      - name: Publish the built site on main
+        run: |
+          cp site/dist/index.html index.html
+          rm -rf assets
+          mkdir -p assets
+          cp site/dist/assets/* assets/
+          touch .nojekyll
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html assets .nojekyll
+          if git diff --staged --quiet; then
+            echo "No site changes"
+          else
+            git commit -m "Publicar el sitio construido"
+            git push
+          fi

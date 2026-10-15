@@ -7,7 +7,7 @@ La página publicada queda en https://carlosbustos97.github.io/
 ## Desarrollo
 
 ```bash
-npm install
+npm --prefix site install
 npm run dev
 ```
 
