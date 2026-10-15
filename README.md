@@ -13,4 +13,4 @@ npm run dev
 
 ## Publicación
 
-Cada push a `main` construye `dist` y lo publica en la rama `gh-pages`. En el repositorio, GitHub Pages debe usar la rama `gh-pages` y la carpeta raíz.
+Cada cambio en `site` construye el sitio, lo publica en la rama `gh-pages` y deja esa misma versión construida en la raíz de `main`, que es la carpeta que GitHub Pages sirve hoy.
