@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  pages: write
 
 concurrency:
   group: pages
@@ -23,7 +24,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
       - name: Install
         run: npm install
@@ -36,3 +36,24 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
+
+      - name: Use gh-pages as the Pages source
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const source = { branch: 'gh-pages', path: '/' }
+            try {
+              await github.rest.repos.updatePages({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                build_type: 'legacy',
+                source,
+              })
+            } catch (error) {
+              if (error.status !== 404) throw error
+              await github.rest.repos.createPagesSite({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                source,
+              })
+            }
