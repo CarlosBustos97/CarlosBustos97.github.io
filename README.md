@@ -1,6 +1,6 @@
 # Portafolio de Carlos Bustos
 
-Sitio estático con los dos proyectos propios del perfil de GitHub: el aula en tiempo real de Kuepa y la nómina en Laravel.
+Sitio estático con tres proyectos propios: FlowDesk, Auralis y Legajo. Auralis está en `auralis-frontend` y `auralis-backend`. Legajo está en `legajo`.
 
 La página publicada queda en https://carlosbustos97.github.io/
 
